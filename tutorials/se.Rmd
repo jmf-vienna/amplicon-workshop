@@ -1,0 +1,58 @@
+---
+title: Using SummarizedExperiment (with JMF amplicon projects)
+author: Bela Hausmann (Joint Microbiome Facility)
+output: 
+  html_document: 
+    toc: true
+    keep_md: true
+---
+
+
+```{r}
+library(conflicted)
+library(jmf)
+quiet()
+```
+
+```{r}
+library(tidyverse)
+suppressPackageStartupMessages(library(mia))
+
+conflicts_prefer(dplyr::first)
+```
+
+
+# Load
+
+```{r}
+se <-
+  fs::dir_ls(glob = "*.qs2", recurse = TRUE) |>
+  first() |>
+  print() |>
+  qs2::qs_read()
+```
+
+
+# Inspect
+
+```{r}
+se
+
+assay(se) |> head(c(5L, 3L))
+(assay(se, "relabundance") * 100.0) |> head(c(5L, 3L))
+assay(se, "clr") |> head(c(5L, 3L))
+```
+
+```{r}
+colData(se) |> head(c(5L, 3L))
+```
+
+```{r}
+taxonomyRanks(se)
+rowData(se) |> head(c(5L, 3L))
+```
+
+
+# Further reading:
+
+* https://microbiome.github.io/OMA/
