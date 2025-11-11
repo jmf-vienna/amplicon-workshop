@@ -10,6 +10,11 @@ output:
 
 
 ``` r
+options(width = 120L)
+```
+
+
+``` r
 library(conflicted)
 library(jmf)
 quiet()
@@ -24,6 +29,7 @@ library(tidyverse)
 
 ``` r
 suppressPackageStartupMessages(library(mia))
+conflicts_prefer(dplyr::filter, .quiet = TRUE)
 conflicts_prefer(dplyr::first, .quiet = TRUE)
 ```
 
@@ -45,8 +51,7 @@ citation("mia")
 ```
 ## To cite package 'mia' in publications use:
 ## 
-##   Borman T, Ernst F, Shetty S, Lahti L (2025). _mia: Microbiome
-##   analysis_. doi:10.18129/B9.bioc.mia
+##   Borman T, Ernst F, Shetty S, Lahti L (2025). _mia: Microbiome analysis_. doi:10.18129/B9.bioc.mia
 ##   <https://doi.org/10.18129/B9.bioc.mia>, R package version 1.18.0,
 ##   <https://bioconductor.org/packages/mia>.
 ## 
@@ -100,13 +105,20 @@ se
 ## assays(3): counts relabundance clr
 ## rownames(3464): ASV_104_sx7 ASV_10f_39x ... ASV_zpu_k9u ASV_zzb_gea
 ## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
-## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025
-##   JMF-1906-4-0027
-## colData names(41): JMF_sample_ID User_sample_ID ...
-##   .alpha_diversity_at_2173_chao1_se .alpha_diversity_at_2173_shannon
+## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(41): JMF_sample_ID User_sample_ID ... .alpha_diversity_at_2173_chao1_se
+##   .alpha_diversity_at_2173_shannon
 ## reducedDimNames(0):
 ## mainExpName: NULL
 ## altExpNames(0):
+```
+
+``` r
+assayNames(se)
+```
+
+```
+## [1] "counts"       "relabundance" "clr"
 ```
 
 ``` r
@@ -161,6 +173,8 @@ metadata(se)[["clr_pseudocount"]]
 
 ## Samples: BioSample/Library metadata
 
+Columns are always samples (biosamples, libraries, merged meta-samples, etc).
+
 
 ``` r
 colData(se) |> head(c(5L, 3L))
@@ -177,7 +191,79 @@ colData(se) |> head(c(5L, 3L))
 ## JMF-1906-4-0005 JMF-1906-4-0005   A5 grassland                  NA
 ```
 
+``` r
+# sample metadata variable names:
+se |>
+  colData() |>
+  names() |>
+  cat(sep = "\n")
+```
+
+```
+## JMF_sample_ID
+## User_sample_ID
+## BioSample_accession
+## Sample_description
+## Dataset
+## JMF_project_ID
+## BioProject_accessions
+## Group
+## Submit_to_SRA
+## Environment_ID
+## MIxS_environmental_package
+## env_broad_scale
+## env_local_scale
+## env_medium
+## organism
+## collection_date
+## geo_loc_name
+## ph
+## d_13C_per_12C
+## d_15N_per_14N
+## dw_per_ww
+## Group4
+## Location
+## mg_C_per_g_DWS
+## mg_N_per_g_DWS
+## mg_TDNC_per_g_DWS
+## mg_TDOC_per_g_DWS
+## Mulched
+## Sample_code
+## Soil_type
+## Soil_type_2
+## TC_per_TN
+## TDOC_per_TDN
+## .Number_of_libraries
+## .Libraries
+## .alpha_diversity_chao1
+## .alpha_diversity_chao1_se
+## .alpha_diversity_shannon
+## .alpha_diversity_at_2173_chao1
+## .alpha_diversity_at_2173_chao1_se
+## .alpha_diversity_at_2173_shannon
+```
+
+``` r
+# access single variables
+head(se$Group)
+```
+
+```
+## [1] "mulched_A"   "mulched_A"   "mulched_A"   "grassland_A" "grassland_A" "grassland_A"
+```
+
+``` r
+# the more formal way:
+colData(se)[, "Group"] |> head()
+```
+
+```
+## [1] "mulched_A"   "mulched_A"   "mulched_A"   "grassland_A" "grassland_A" "grassland_A"
+```
+
 ## Features: ASV/taxa taxonomy and metadata
+
+Rows are always features, i.e., ASVs, OTUs, genera, etc.
 
 
 ``` r
@@ -195,8 +281,7 @@ metadata(se)[["taxonomy_ranks"]][["current"]]
 ```
 
 ```
-## [1] "Domain"  "Phylum"  "Class"   "Order"   "Family"  "Genus"   "Species"
-## [8] "ASV_ID"
+## [1] "Domain"  "Phylum"  "Class"   "Order"   "Family"  "Genus"   "Species" "ASV_ID"
 ```
 
 ``` r
@@ -213,6 +298,66 @@ rowData(se) |> head(c(5L, 3L))
 ## ASV_116_8mi    Bacteria  Pseudomonadota Alphaproteobacteria
 ## ASV_11y_e80    Bacteria              NA                  NA
 ```
+
+``` r
+# Bioconductor/tidyverse mixed usage:
+se |>
+  rowData() |>
+  as_tibble() |>
+  select(Domain:ASV_ID) |>
+  head()
+```
+
+```
+## # A tibble: 6 × 8
+##   Domain   Phylum          Class               Order               Family            Genus        Species ASV_ID     
+##   <chr>    <chr>           <chr>               <chr>               <chr>             <chr>        <chr>   <chr>      
+## 1 Bacteria Actinomycetota  Thermoleophilia     Solirubrobacterales 67-14             <NA>         <NA>    ASV_104_sx7
+## 2 Bacteria Planctomycetota Planctomycetes      Pirellulales        Pirellulaceae     Pir4 lineage <NA>    ASV_10f_39x
+## 3 Bacteria Pseudomonadota  Gammaproteobacteria Burkholderiales     <NA>              <NA>         <NA>    ASV_10z_d3k
+## 4 Bacteria Pseudomonadota  Alphaproteobacteria <NA>                <NA>              <NA>         <NA>    ASV_116_8mi
+## 5 Bacteria <NA>            <NA>                <NA>                <NA>              <NA>         <NA>    ASV_11y_e80
+## 6 Bacteria Gemmatimonadota Gemmatimonadia      Gemmatimonadales    Gemmatimonadaceae Gemmatimonas <NA>    ASV_122_kp1
+```
+
+## everything
+
+
+``` r
+mse <-
+  se |>
+  meltSE(assay.type = "relabundance", add.row = TRUE, add.col = TRUE) |>
+  mutate(relabundance := relabundance * 100)
+
+dim(mse)
+```
+
+```
+## [1] 90064    55
+```
+
+
+``` r
+# Arbitrary example:
+mse |>
+  filter(Family == "Nitrososphaeraceae") |>
+  group_by(across(c(User_sample_ID, Group, Family:Genus))) |>
+  summarise(relabundance = mean(relabundance), .groups = "drop") |>
+  arrange(-relabundance) |>
+  head(4)
+```
+
+```
+## # A tibble: 4 × 5
+##   User_sample_ID Group       Family             Genus                      relabundance
+##   <chr>          <chr>       <chr>              <chr>                             <dbl>
+## 1 T6 grassland   grassland_T Nitrososphaeraceae <NA>                              2.35 
+## 2 T7 forested    forested_T  Nitrososphaeraceae <NA>                              1.15 
+## 3 A8 forested    forested_A  Nitrososphaeraceae <NA>                              0.775
+## 4 A8 forested    forested_A  Nitrososphaeraceae Candidatus Nitrosocosmicus        0.774
+```
+
+
 
 ## more metadata
 
@@ -252,7 +397,7 @@ metadata(se) |> str()
 ``` r
 # provenance metadata generated by the JMF
 se |>
-  attr("provenance", exact = TRUE) |>
+  attr("provenance") |>
   str()
 ```
 
@@ -266,6 +411,87 @@ se |>
 ##  $ sample filter:List of 1
 ##   ..$ ≥: int 1000
 ```
+
+* JMF workflow functions can also be quickly (re-)used like this for convenience:
+
+
+``` r
+source("https://raw.githubusercontent.com/jmf-vienna/amplicon-analysis/refs/heads/main/R/provenance.R")
+
+se |>
+  get_provenance() |>
+  str()
+```
+
+```
+## List of 6
+##  $ project      : chr "JMF-1906-4"
+##  $ gene         : chr "16S rRNA V4 (515F/806R)"
+##  $ resolution   : chr "samples"
+##  $ state        : chr "refined"
+##  $ rank         : chr "ASV_ID"
+##  $ sample filter:List of 1
+##   ..$ ≥: int 1000
+```
+
+``` r
+provenance_as_short_title(se)
+```
+
+```
+## [1] "samples/refined/ASV_ID/1000"
+```
+
+``` r
+provenance_as_tibble(se)
+```
+
+```
+## # A tibble: 1 × 6
+##   project    gene                    resolution state   rank   `sample filter ≥`
+##   <chr>      <chr>                   <chr>      <chr>   <chr>              <int>
+## 1 JMF-1906-4 16S rRNA V4 (515F/806R) samples    refined ASV_ID              1000
+```
+
+## final tips
+
+
+``` r
+# number of features:
+nrow(se)
+```
+
+```
+## [1] 3464
+```
+
+``` r
+# number of samples:
+ncol(se)
+```
+
+```
+## [1] 26
+```
+
+``` r
+# internal feature IDs
+rownames(se) |> head()
+```
+
+```
+## [1] "ASV_104_sx7" "ASV_10f_39x" "ASV_10z_d3k" "ASV_116_8mi" "ASV_11y_e80" "ASV_122_kp1"
+```
+
+``` r
+# internal sample IDs
+colnames(se) |> head()
+```
+
+```
+## [1] "JMF-1906-4-0001" "JMF-1906-4-0002" "JMF-1906-4-0003" "JMF-1906-4-0004" "JMF-1906-4-0005" "JMF-1906-4-0006"
+```
+
 
 
 # Further reading:
