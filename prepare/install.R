@@ -7,6 +7,7 @@ if (!require("pak", quietly = TRUE)) {
 pak::pkg_install(
   c(
     "tidyverse",
+    "conflicted",
     "patchwork",
     "styler",
     "lintr",
