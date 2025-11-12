@@ -829,30 +829,79 @@ waldo::compare(colData(se), new_metadata)</code></pre>
 <div id="dry" class="section level1">
 <h1>DRY</h1>
 <p><a href="https://en.wikipedia.org/wiki/Don&#39;t_repeat_yourself" class="uri">https://en.wikipedia.org/wiki/Don&#39;t_repeat_yourself</a></p>
-<pre class="r"><code>my_analysis &lt;- function(se, var) {
-  se[[var]] |&gt; first()
+<pre class="r"><code># Oversimplified, there are better ways to test ASV abundance against sample variables. This is for education only!
+my_analysis &lt;- function(se, var, asv) {
+  variable &lt;-
+    se[[var]] |&gt;
+    base::as.factor() |&gt;
+    as.numeric()
+
+  abundance &lt;- assay(se, &quot;clr&quot;)[asv, ]
+
+  cor.test(abundance, variable)
 }
 
-my_analysis(se, &quot;Group&quot;)</code></pre>
-<pre><code>## [1] mulched_A
-## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control</code></pre>
+my_analysis(se, &quot;Group&quot;, &quot;ASV_1uo_lwx&quot;)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  abundance and variable
+## t = -2.0982, df = 24, p-value = 0.04659
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.67770755 -0.00750048
+## sample estimates:
+##        cor 
+## -0.3937086</code></pre>
 <pre class="r"><code>variables_of_interrest &lt;- c(&quot;Group&quot;, &quot;Soil_type&quot;, &quot;Location&quot;)
 
-map(variables_of_interrest, \(x) my_analysis(se, x))</code></pre>
+map(variables_of_interrest, \(x) my_analysis(se, x, &quot;ASV_1uo_lwx&quot;))</code></pre>
 <pre><code>## [[1]]
-## [1] mulched_A
-## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  abundance and variable
+## t = -2.0982, df = 24, p-value = 0.04659
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.67770755 -0.00750048
+## sample estimates:
+##        cor 
+## -0.3937086 
+## 
 ## 
 ## [[2]]
-## [1] &quot;mulched&quot;
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  abundance and variable
+## t = -6.1324, df = 23, p-value = 2.957e-06
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.9020769 -0.5700036
+## sample estimates:
+##        cor 
+## -0.7877196 
+## 
 ## 
 ## [[3]]
-## [1] &quot;A&quot;</code></pre>
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  abundance and variable
+## t = 0.012293, df = 24, p-value = 0.9903
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.3852172  0.3894826
+## sample estimates:
+##        cor 
+## 0.00250919</code></pre>
 </div>
 <div id="further-reading" class="section level1">
 <h1>Further reading:</h1>
 <ul>
-<li><a href="https://microbiome.github.io/OMA/" class="uri">https://microbiome.github.io/OMA/</a></li>
+<li>Amplicon Analysis with Bioconductor <a href="https://microbiome.github.io/OMA/" class="uri">https://microbiome.github.io/OMA/</a></li>
+<li>R for Data Science <a href="https://r4ds.hadley.nz/" class="uri">https://r4ds.hadley.nz/</a></li>
 </ul>
 </div>
 

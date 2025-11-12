@@ -276,21 +276,29 @@ se[!is.na(rowData(se)$decontam_p_value) & rowData(se)$decontam_p_value < 0.5, ]
 https://en.wikipedia.org/wiki/Don't_repeat_yourself
 
 ```{r}
-my_analysis <- function(se, var) {
-  se[[var]] |> first()
+# Oversimplified, there are better ways to test ASV abundance against sample variables. This is for education only!
+my_analysis <- function(se, var, asv) {
+  variable <-
+    se[[var]] |>
+    base::as.factor() |>
+    as.numeric()
+
+  abundance <- assay(se, "clr")[asv, ]
+
+  cor.test(abundance, variable)
 }
 
-my_analysis(se, "Group")
+my_analysis(se, "Group", "ASV_1uo_lwx")
 ```
 
 ```{r}
 variables_of_interrest <- c("Group", "Soil_type", "Location")
 
-map(variables_of_interrest, \(x) my_analysis(se, x))
+map(variables_of_interrest, \(x) my_analysis(se, x, "ASV_1uo_lwx"))
 ```
-
 
 
 # Further reading:
 
-* https://microbiome.github.io/OMA/
+* Amplicon Analysis with Bioconductor https://microbiome.github.io/OMA/
+* R for Data Science https://r4ds.hadley.nz/

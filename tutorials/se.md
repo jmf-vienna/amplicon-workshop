@@ -681,39 +681,87 @@ https://en.wikipedia.org/wiki/Don't_repeat_yourself
 
 
 ``` r
-my_analysis <- function(se, var) {
-  se[[var]] |> first()
+# Oversimplified, there are better ways to test ASV abundance against sample variables. This is for education only!
+my_analysis <- function(se, var, asv) {
+  variable <-
+    se[[var]] |>
+    base::as.factor() |>
+    as.numeric()
+
+  abundance <- assay(se, "clr")[asv, ]
+
+  cor.test(abundance, variable)
 }
 
-my_analysis(se, "Group")
+my_analysis(se, "Group", "ASV_1uo_lwx")
 ```
 
 ```
-## [1] mulched_A
-## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  abundance and variable
+## t = -2.0982, df = 24, p-value = 0.04659
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.67770755 -0.00750048
+## sample estimates:
+##        cor 
+## -0.3937086
 ```
 
 
 ``` r
 variables_of_interrest <- c("Group", "Soil_type", "Location")
 
-map(variables_of_interrest, \(x) my_analysis(se, x))
+map(variables_of_interrest, \(x) my_analysis(se, x, "ASV_1uo_lwx"))
 ```
 
 ```
 ## [[1]]
-## [1] mulched_A
-## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  abundance and variable
+## t = -2.0982, df = 24, p-value = 0.04659
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.67770755 -0.00750048
+## sample estimates:
+##        cor 
+## -0.3937086 
+## 
 ## 
 ## [[2]]
-## [1] "mulched"
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  abundance and variable
+## t = -6.1324, df = 23, p-value = 2.957e-06
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.9020769 -0.5700036
+## sample estimates:
+##        cor 
+## -0.7877196 
+## 
 ## 
 ## [[3]]
-## [1] "A"
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  abundance and variable
+## t = 0.012293, df = 24, p-value = 0.9903
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.3852172  0.3894826
+## sample estimates:
+##        cor 
+## 0.00250919
 ```
-
 
 
 # Further reading:
 
-* https://microbiome.github.io/OMA/
+* Amplicon Analysis with Bioconductor https://microbiome.github.io/OMA/
+* R for Data Science https://r4ds.hadley.nz/
