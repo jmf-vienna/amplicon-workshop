@@ -19,6 +19,9 @@ pak::pkg_install(
     "svglite",
     "rstatix",
     "ggpubr",
+    "targets",
+    "config",
+    "waldo",
     # Bioconductor:
     "BiocVersion",
     "BiocManager",
