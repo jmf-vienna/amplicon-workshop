@@ -612,7 +612,7 @@ colData(se) <- new_metadata
 ```
 
 
-# Subset
+# Subsetting
 
 ## Subset samples
 
@@ -672,6 +672,44 @@ se[!is.na(rowData(se)$decontam_p_value) & rowData(se)$decontam_p_value < 0.5, ]
 ## reducedDimNames(0):
 ## mainExpName: NULL
 ## altExpNames(0):
+```
+
+
+# DRY
+
+https://en.wikipedia.org/wiki/Don't_repeat_yourself
+
+
+``` r
+my_analysis <- function(se, var) {
+  se[[var]] |> first()
+}
+
+my_analysis(se, "Group")
+```
+
+```
+## [1] mulched_A
+## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control
+```
+
+
+``` r
+variables_of_interrest <- c("Group", "Soil_type", "Location")
+
+map(variables_of_interrest, \(x) my_analysis(se, x))
+```
+
+```
+## [[1]]
+## [1] mulched_A
+## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control
+## 
+## [[2]]
+## [1] "mulched"
+## 
+## [[3]]
+## [1] "A"
 ```
 
 

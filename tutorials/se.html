@@ -378,13 +378,14 @@ new sample metadata variables from existing ones</a></li>
 <li><a href="#added-new-data-from-external-tables" id="toc-added-new-data-from-external-tables">Added new data from
 external tables</a></li>
 </ul></li>
-<li><a href="#subset" id="toc-subset">Subset</a>
+<li><a href="#subsetting" id="toc-subsetting">Subsetting</a>
 <ul>
 <li><a href="#subset-samples" id="toc-subset-samples">Subset
 samples</a></li>
 <li><a href="#subset-features" id="toc-subset-features">Subset
 features</a></li>
 </ul></li>
+<li><a href="#dry" id="toc-dry">DRY</a></li>
 <li><a href="#further-reading" id="toc-further-reading">Further
 reading:</a></li>
 </ul>
@@ -780,8 +781,8 @@ waldo::compare(colData(se), new_metadata)</code></pre>
 <pre class="r"><code>colData(se) &lt;- new_metadata</code></pre>
 </div>
 </div>
-<div id="subset" class="section level1">
-<h1>Subset</h1>
+<div id="subsetting" class="section level1">
+<h1>Subsetting</h1>
 <div id="subset-samples" class="section level2">
 <h2>Subset samples</h2>
 <pre class="r"><code>se[, se$Soil_type %in% &quot;forested&quot;]</code></pre>
@@ -824,6 +825,29 @@ waldo::compare(colData(se), new_metadata)</code></pre>
 ## mainExpName: NULL
 ## altExpNames(0):</code></pre>
 </div>
+</div>
+<div id="dry" class="section level1">
+<h1>DRY</h1>
+<p><a href="https://en.wikipedia.org/wiki/Don&#39;t_repeat_yourself" class="uri">https://en.wikipedia.org/wiki/Don&#39;t_repeat_yourself</a></p>
+<pre class="r"><code>my_analysis &lt;- function(se, var) {
+  se[[var]] |&gt; first()
+}
+
+my_analysis(se, &quot;Group&quot;)</code></pre>
+<pre><code>## [1] mulched_A
+## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control</code></pre>
+<pre class="r"><code>variables_of_interrest &lt;- c(&quot;Group&quot;, &quot;Soil_type&quot;, &quot;Location&quot;)
+
+map(variables_of_interrest, \(x) my_analysis(se, x))</code></pre>
+<pre><code>## [[1]]
+## [1] mulched_A
+## 10 Levels: forested_P grassland_A grassland_P grassland_T mulched_A mulched_P mulched_T forested_A ... mulch_wood_control
+## 
+## [[2]]
+## [1] &quot;mulched&quot;
+## 
+## [[3]]
+## [1] &quot;A&quot;</code></pre>
 </div>
 <div id="further-reading" class="section level1">
 <h1>Further reading:</h1>

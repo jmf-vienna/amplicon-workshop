@@ -254,7 +254,7 @@ colData(se) <- new_metadata
 ```
 
 
-# Subset
+# Subsetting
 
 ## Subset samples
 
@@ -268,6 +268,25 @@ se[, se$Soil_type %in% "forested"]
 se[rowData(se)$Family %in% "Nitrososphaeraceae", ]
 
 se[!is.na(rowData(se)$decontam_p_value) & rowData(se)$decontam_p_value < 0.5, ]
+```
+
+
+# DRY
+
+https://en.wikipedia.org/wiki/Don't_repeat_yourself
+
+```{r}
+my_analysis <- function(se, var) {
+  se[[var]] |> first()
+}
+
+my_analysis(se, "Group")
+```
+
+```{r}
+variables_of_interrest <- c("Group", "Soil_type", "Location")
+
+map(variables_of_interrest, \(x) my_analysis(se, x))
 ```
 
 
