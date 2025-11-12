@@ -74,6 +74,7 @@ assay(se, "clr") |> head(c(5L, 3L))
 metadata(se)[["clr_pseudocount"]]
 ```
 
+
 ## Samples: BioSample/Library metadata
 
 Columns are always samples (biosamples, libraries, merged meta-samples, etc).
@@ -92,6 +93,14 @@ head(se$Group)
 # the more formal way:
 colData(se)[, "Group"] |> head()
 ```
+
+* RStudio's table viewer can not use Bioconductor constructs directly, so conversion to data.frames or tibbles is needed.
+
+```r
+se |> colData() |> as.data.frame() |> View()
+```
+
+
 
 ## Features: ASV/taxa taxonomy and metadata
 
@@ -113,13 +122,24 @@ se |>
   head()
 ```
 
+Extra feature metadata added by JMF:
+
+```{r}
+rowData(se)$Lineage |> first()
+rowData(se)$sequence_length |> first()
+
+# decontam P-values are only usable if negative controls were correctly assigned and used (see user sample sheet and config)
+rowData(se)$decontam_p_value |> first()
+```
+
+
 ## everything
 
 ```{r}
 mse <-
   se |>
   meltSE(assay.type = "relabundance", add.row = TRUE, add.col = TRUE) |>
-  mutate(relabundance := relabundance * 100)
+  mutate(relabundance := relabundance * 100L)
 
 dim(mse)
 ```
@@ -131,7 +151,7 @@ mse |>
   group_by(across(c(User_sample_ID, Group, Family:Genus))) |>
   summarise(relabundance = mean(relabundance), .groups = "drop") |>
   arrange(-relabundance) |>
-  head(4)
+  head(4L)
 ```
 
 
@@ -178,6 +198,60 @@ rownames(se) |> head()
 colnames(se) |> head()
 ```
 
+
+# Amend metadata
+
+## Changing existing sample metadata variables
+
+```{r}
+# Converting a nominal variable to an ordinal variable (factor)
+colData(se)$Group <- colData(se)$Group |> fct_infreq()
+```
+
+## Creating new sample metadata variables from existing ones
+
+* Prefer `%in%` over `==` in vector comparison when `NA`s should NOT be preserved.
+
+```{r}
+colData(se)$Replicate_number <- colData(se)$User_sample_ID |> str_extract("[0-9]+")
+colData(se)$is_grassland <- colData(se)$Soil_type %in% "grassland soil"
+colData(se)$is_grassland_with_NAs <- colData(se)$Soil_type == "grassland soil" # DIFFERENT RESULT!
+```
+
+## Added new data from external tables
+
+```{r}
+extra_metadata <-
+  fs::path("data", "soils.tsv") |>
+  read_tsv() |>
+  print()
+```
+
+* Use `left_join` to make sure no samples are missing after merging tables.
+* Specify `by` when merging tables to catch errors earlier.
+
+```{r}
+new_metadata <-
+  se |>
+  colData() |>
+  as.data.frame() |>
+  rownames_to_column() |>
+  as_tibble() |>
+  dplyr::left_join(extra_metadata, by = "Soil_type") |>
+  column_to_rownames("rowname") |>
+  as("DataFrame")
+
+# ASSERTION: make sure nothing unexpected happened to number and order of samples!
+new_metadata |>
+  rownames() |>
+  identical(colnames(se)) |>
+  stopifnot()
+
+# debug issues with `waldo`:
+waldo::compare(colData(se), new_metadata)
+
+colData(se) <- new_metadata
+```
 
 
 # Further reading:

@@ -171,6 +171,7 @@ metadata(se)[["clr_pseudocount"]]
 ## [1] 0.5
 ```
 
+
 ## Samples: BioSample/Library metadata
 
 Columns are always samples (biosamples, libraries, merged meta-samples, etc).
@@ -261,6 +262,14 @@ colData(se)[, "Group"] |> head()
 ## [1] "mulched_A"   "mulched_A"   "mulched_A"   "grassland_A" "grassland_A" "grassland_A"
 ```
 
+* RStudio's table viewer can not use Bioconductor constructs directly, so conversion to data.frames or tibbles is needed.
+
+```r
+se |> colData() |> as.data.frame() |> View()
+```
+
+
+
 ## Features: ASV/taxa taxonomy and metadata
 
 Rows are always features, i.e., ASVs, OTUs, genera, etc.
@@ -320,6 +329,35 @@ se |>
 ## 6 Bacteria Gemmatimonadota Gemmatimonadia      Gemmatimonadales    Gemmatimonadaceae Gemmatimonas <NA>    ASV_122_kp1
 ```
 
+Extra feature metadata added by JMF:
+
+
+``` r
+rowData(se)$Lineage |> first()
+```
+
+```
+## [1] "Bacteria ‣ Actinomycetota ‣ Thermoleophilia ‣ Solirubrobacterales ‣ 67-14 ‣ ‣ ‣ ASV_104_sx7"
+```
+
+``` r
+rowData(se)$sequence_length |> first()
+```
+
+```
+## [1] 253
+```
+
+``` r
+# decontam P-values are only usable if negative controls were correctly assigned and used (see user sample sheet and config)
+rowData(se)$decontam_p_value |> first()
+```
+
+```
+## [1] 0.999018
+```
+
+
 ## everything
 
 
@@ -327,7 +365,7 @@ se |>
 mse <-
   se |>
   meltSE(assay.type = "relabundance", add.row = TRUE, add.col = TRUE) |>
-  mutate(relabundance := relabundance * 100)
+  mutate(relabundance := relabundance * 100L)
 
 dim(mse)
 ```
@@ -344,7 +382,7 @@ mse |>
   group_by(across(c(User_sample_ID, Group, Family:Genus))) |>
   summarise(relabundance = mean(relabundance), .groups = "drop") |>
   arrange(-relabundance) |>
-  head(4)
+  head(4L)
 ```
 
 ```
@@ -492,6 +530,86 @@ colnames(se) |> head()
 ## [1] "JMF-1906-4-0001" "JMF-1906-4-0002" "JMF-1906-4-0003" "JMF-1906-4-0004" "JMF-1906-4-0005" "JMF-1906-4-0006"
 ```
 
+
+# Amend metadata
+
+## Changing existing sample metadata variables
+
+
+``` r
+# Converting a nominal variable to an ordinal variable (factor)
+colData(se)$Group <- colData(se)$Group |> fct_infreq()
+```
+
+## Creating new sample metadata variables from existing ones
+
+* Prefer `%in%` over `==` in vector comparison when `NA`s should NOT be preserved.
+
+
+``` r
+colData(se)$Replicate_number <- colData(se)$User_sample_ID |> str_extract("[0-9]+")
+colData(se)$is_grassland <- colData(se)$Soil_type %in% "grassland soil"
+colData(se)$is_grassland_with_NAs <- colData(se)$Soil_type == "grassland soil" # DIFFERENT RESULT!
+```
+
+## Added new data from external tables
+
+
+``` r
+extra_metadata <-
+  fs::path("data", "soils.tsv") |>
+  read_tsv() |>
+  print()
+```
+
+```
+## # A tibble: 3 × 2
+##   Soil_type Color
+##   <chr>     <chr>
+## 1 grassland green
+## 2 forested  brown
+## 3 mulched   brown
+```
+
+* Use `left_join` to make sure no samples are missing after merging tables.
+* Specify `by` when merging tables to catch errors earlier.
+
+
+``` r
+new_metadata <-
+  se |>
+  colData() |>
+  as.data.frame() |>
+  rownames_to_column() |>
+  as_tibble() |>
+  dplyr::left_join(extra_metadata, by = "Soil_type") |>
+  column_to_rownames("rowname") |>
+  as("DataFrame")
+
+# ASSERTION: make sure nothing unexpected happened to number and order of samples!
+new_metadata |>
+  rownames() |>
+  identical(colnames(se)) |>
+  stopifnot()
+
+# debug issues with `waldo`:
+waldo::compare(colData(se), new_metadata)
+```
+
+```
+## `old@listData` is length 44
+## `new@listData` is length 45
+## 
+## `names(old@listData)[42:44]`: "Replicate_number" "is_grassland" "is_grassland_with_NAs"        
+## `names(new@listData)[42:45]`: "Replicate_number" "is_grassland" "is_grassland_with_NAs" "Color"
+## 
+## `old@listData$Color` is absent
+## `new@listData$Color` is a character vector ('brown', 'brown', 'brown', 'green', 'green', ...)
+```
+
+``` r
+colData(se) <- new_metadata
+```
 
 
 # Further reading:

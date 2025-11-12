@@ -369,6 +369,15 @@ taxonomy and metadata</a></li>
 metadata</a></li>
 <li><a href="#final-tips" id="toc-final-tips">final tips</a></li>
 </ul></li>
+<li><a href="#amend-metadata" id="toc-amend-metadata">Amend metadata</a>
+<ul>
+<li><a href="#changing-existing-sample-metadata-variables" id="toc-changing-existing-sample-metadata-variables">Changing existing
+sample metadata variables</a></li>
+<li><a href="#creating-new-sample-metadata-variables-from-existing-ones" id="toc-creating-new-sample-metadata-variables-from-existing-ones">Creating
+new sample metadata variables from existing ones</a></li>
+<li><a href="#added-new-data-from-external-tables" id="toc-added-new-data-from-external-tables">Added new data from
+external tables</a></li>
+</ul></li>
 <li><a href="#further-reading" id="toc-further-reading">Further
 reading:</a></li>
 </ul>
@@ -545,6 +554,11 @@ head(se$Group)</code></pre>
 <pre class="r"><code># the more formal way:
 colData(se)[, &quot;Group&quot;] |&gt; head()</code></pre>
 <pre><code>## [1] &quot;mulched_A&quot;   &quot;mulched_A&quot;   &quot;mulched_A&quot;   &quot;grassland_A&quot; &quot;grassland_A&quot; &quot;grassland_A&quot;</code></pre>
+<ul>
+<li>RStudio’s table viewer can not use Bioconductor constructs directly,
+so conversion to data.frames or tibbles is needed.</li>
+</ul>
+<pre class="r"><code>se |&gt; colData() |&gt; as.data.frame() |&gt; View()</code></pre>
 </div>
 <div id="features-asvtaxa-taxonomy-and-metadata" class="section level2">
 <h2>Features: ASV/taxa taxonomy and metadata</h2>
@@ -579,13 +593,21 @@ se |&gt;
 ## 4 Bacteria Pseudomonadota  Alphaproteobacteria &lt;NA&gt;                &lt;NA&gt;              &lt;NA&gt;         &lt;NA&gt;    ASV_116_8mi
 ## 5 Bacteria &lt;NA&gt;            &lt;NA&gt;                &lt;NA&gt;                &lt;NA&gt;              &lt;NA&gt;         &lt;NA&gt;    ASV_11y_e80
 ## 6 Bacteria Gemmatimonadota Gemmatimonadia      Gemmatimonadales    Gemmatimonadaceae Gemmatimonas &lt;NA&gt;    ASV_122_kp1</code></pre>
+<p>Extra feature metadata added by JMF:</p>
+<pre class="r"><code>rowData(se)$Lineage |&gt; first()</code></pre>
+<pre><code>## [1] &quot;Bacteria ‣ Actinomycetota ‣ Thermoleophilia ‣ Solirubrobacterales ‣ 67-14 ‣ ‣ ‣ ASV_104_sx7&quot;</code></pre>
+<pre class="r"><code>rowData(se)$sequence_length |&gt; first()</code></pre>
+<pre><code>## [1] 253</code></pre>
+<pre class="r"><code># decontam P-values are only usable if negative controls were correctly assigned and used (see user sample sheet and config)
+rowData(se)$decontam_p_value |&gt; first()</code></pre>
+<pre><code>## [1] 0.999018</code></pre>
 </div>
 <div id="everything" class="section level2">
 <h2>everything</h2>
 <pre class="r"><code>mse &lt;-
   se |&gt;
   meltSE(assay.type = &quot;relabundance&quot;, add.row = TRUE, add.col = TRUE) |&gt;
-  mutate(relabundance := relabundance * 100)
+  mutate(relabundance := relabundance * 100L)
 
 dim(mse)</code></pre>
 <pre><code>## [1] 90064    55</code></pre>
@@ -595,7 +617,7 @@ mse |&gt;
   group_by(across(c(User_sample_ID, Group, Family:Genus))) |&gt;
   summarise(relabundance = mean(relabundance), .groups = &quot;drop&quot;) |&gt;
   arrange(-relabundance) |&gt;
-  head(4)</code></pre>
+  head(4L)</code></pre>
 <pre><code>## # A tibble: 4 × 5
 ##   User_sample_ID Group       Family             Genus                      relabundance
 ##   &lt;chr&gt;          &lt;chr&gt;       &lt;chr&gt;              &lt;chr&gt;                             &lt;dbl&gt;
@@ -685,6 +707,70 @@ rownames(se) |&gt; head()</code></pre>
 <pre class="r"><code># internal sample IDs
 colnames(se) |&gt; head()</code></pre>
 <pre><code>## [1] &quot;JMF-1906-4-0001&quot; &quot;JMF-1906-4-0002&quot; &quot;JMF-1906-4-0003&quot; &quot;JMF-1906-4-0004&quot; &quot;JMF-1906-4-0005&quot; &quot;JMF-1906-4-0006&quot;</code></pre>
+</div>
+</div>
+<div id="amend-metadata" class="section level1">
+<h1>Amend metadata</h1>
+<div id="changing-existing-sample-metadata-variables" class="section level2">
+<h2>Changing existing sample metadata variables</h2>
+<pre class="r"><code># Converting a nominal variable to an ordinal variable (factor)
+colData(se)$Group &lt;- colData(se)$Group |&gt; fct_infreq()</code></pre>
+</div>
+<div id="creating-new-sample-metadata-variables-from-existing-ones" class="section level2">
+<h2>Creating new sample metadata variables from existing ones</h2>
+<ul>
+<li>Prefer <code>%in%</code> over <code>==</code> in vector comparison
+when <code>NA</code>s should NOT be preserved.</li>
+</ul>
+<pre class="r"><code>colData(se)$Replicate_number &lt;- colData(se)$User_sample_ID |&gt; str_extract(&quot;[0-9]+&quot;)
+colData(se)$is_grassland &lt;- colData(se)$Soil_type %in% &quot;grassland soil&quot;
+colData(se)$is_grassland_with_NAs &lt;- colData(se)$Soil_type == &quot;grassland soil&quot; # DIFFERENT RESULT!</code></pre>
+</div>
+<div id="added-new-data-from-external-tables" class="section level2">
+<h2>Added new data from external tables</h2>
+<pre class="r"><code>extra_metadata &lt;-
+  fs::path(&quot;data&quot;, &quot;soils.tsv&quot;) |&gt;
+  read_tsv() |&gt;
+  print()</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   Soil_type Color
+##   &lt;chr&gt;     &lt;chr&gt;
+## 1 grassland green
+## 2 forested  brown
+## 3 mulched   brown</code></pre>
+<ul>
+<li>Use <code>left_join</code> to make sure no samples are missing after
+merging tables.</li>
+<li>Specify <code>by</code> when merging tables to catch errors
+earlier.</li>
+</ul>
+<pre class="r"><code>new_metadata &lt;-
+  se |&gt;
+  colData() |&gt;
+  as.data.frame() |&gt;
+  rownames_to_column() |&gt;
+  as_tibble() |&gt;
+  dplyr::left_join(extra_metadata, by = &quot;Soil_type&quot;) |&gt;
+  column_to_rownames(&quot;rowname&quot;) |&gt;
+  as(&quot;DataFrame&quot;)
+
+# ASSERTION: make sure nothing unexpected happened to number and order of samples!
+new_metadata |&gt;
+  rownames() |&gt;
+  identical(colnames(se)) |&gt;
+  stopifnot()
+
+# debug issues with `waldo`:
+waldo::compare(colData(se), new_metadata)</code></pre>
+<pre><code>## `old@listData` is length 44
+## `new@listData` is length 45
+## 
+## `names(old@listData)[42:44]`: &quot;Replicate_number&quot; &quot;is_grassland&quot; &quot;is_grassland_with_NAs&quot;        
+## `names(new@listData)[42:45]`: &quot;Replicate_number&quot; &quot;is_grassland&quot; &quot;is_grassland_with_NAs&quot; &quot;Color&quot;
+## 
+## `old@listData$Color` is absent
+## `new@listData$Color` is a character vector (&#39;brown&#39;, &#39;brown&#39;, &#39;brown&#39;, &#39;green&#39;, &#39;green&#39;, ...)</code></pre>
+<pre class="r"><code>colData(se) &lt;- new_metadata</code></pre>
 </div>
 </div>
 <div id="further-reading" class="section level1">
