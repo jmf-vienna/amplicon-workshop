@@ -612,6 +612,70 @@ colData(se) <- new_metadata
 ```
 
 
+# Subset
+
+## Subset samples
+
+
+``` r
+se[, se$Soil_type %in% "forested"]
+```
+
+```
+## class: SingleCellExperiment 
+## dim: 3464 7 
+## metadata(4): version taxonomy_ranks filtered_features clr_pseudocount
+## assays(3): counts relabundance clr
+## rownames(3464): ASV_104_sx7 ASV_10f_39x ... ASV_zpu_k9u ASV_zzb_gea
+## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
+## colnames(7): JMF-1906-4-0007 JMF-1906-4-0008 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## reducedDimNames(0):
+## mainExpName: NULL
+## altExpNames(0):
+```
+
+## Subset features
+
+
+``` r
+se[rowData(se)$Family %in% "Nitrososphaeraceae", ]
+```
+
+```
+## class: SingleCellExperiment 
+## dim: 19 26 
+## metadata(4): version taxonomy_ranks filtered_features clr_pseudocount
+## assays(3): counts relabundance clr
+## rownames(19): ASV_1m6_gv5 ASV_1uo_lwx ... ASV_qbb_py4 ASV_qh9_8jg
+## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
+## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## reducedDimNames(0):
+## mainExpName: NULL
+## altExpNames(0):
+```
+
+``` r
+se[!is.na(rowData(se)$decontam_p_value) & rowData(se)$decontam_p_value < 0.5, ]
+```
+
+```
+## class: SingleCellExperiment 
+## dim: 16 26 
+## metadata(4): version taxonomy_ranks filtered_features clr_pseudocount
+## assays(3): counts relabundance clr
+## rownames(16): ASV_1rx_gqy ASV_2al_wxi ... ASV_s67_kdf ASV_snr_mtn
+## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
+## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## reducedDimNames(0):
+## mainExpName: NULL
+## altExpNames(0):
+```
+
+
+
 # Further reading:
 
 * https://microbiome.github.io/OMA/

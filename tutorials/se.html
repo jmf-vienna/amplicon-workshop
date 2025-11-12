@@ -378,6 +378,13 @@ new sample metadata variables from existing ones</a></li>
 <li><a href="#added-new-data-from-external-tables" id="toc-added-new-data-from-external-tables">Added new data from
 external tables</a></li>
 </ul></li>
+<li><a href="#subset" id="toc-subset">Subset</a>
+<ul>
+<li><a href="#subset-samples" id="toc-subset-samples">Subset
+samples</a></li>
+<li><a href="#subset-features" id="toc-subset-features">Subset
+features</a></li>
+</ul></li>
 <li><a href="#further-reading" id="toc-further-reading">Further
 reading:</a></li>
 </ul>
@@ -771,6 +778,51 @@ waldo::compare(colData(se), new_metadata)</code></pre>
 ## `old@listData$Color` is absent
 ## `new@listData$Color` is a character vector (&#39;brown&#39;, &#39;brown&#39;, &#39;brown&#39;, &#39;green&#39;, &#39;green&#39;, ...)</code></pre>
 <pre class="r"><code>colData(se) &lt;- new_metadata</code></pre>
+</div>
+</div>
+<div id="subset" class="section level1">
+<h1>Subset</h1>
+<div id="subset-samples" class="section level2">
+<h2>Subset samples</h2>
+<pre class="r"><code>se[, se$Soil_type %in% &quot;forested&quot;]</code></pre>
+<pre><code>## class: SingleCellExperiment 
+## dim: 3464 7 
+## metadata(4): version taxonomy_ranks filtered_features clr_pseudocount
+## assays(3): counts relabundance clr
+## rownames(3464): ASV_104_sx7 ASV_10f_39x ... ASV_zpu_k9u ASV_zzb_gea
+## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
+## colnames(7): JMF-1906-4-0007 JMF-1906-4-0008 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## reducedDimNames(0):
+## mainExpName: NULL
+## altExpNames(0):</code></pre>
+</div>
+<div id="subset-features" class="section level2">
+<h2>Subset features</h2>
+<pre class="r"><code>se[rowData(se)$Family %in% &quot;Nitrososphaeraceae&quot;, ]</code></pre>
+<pre><code>## class: SingleCellExperiment 
+## dim: 19 26 
+## metadata(4): version taxonomy_ranks filtered_features clr_pseudocount
+## assays(3): counts relabundance clr
+## rownames(19): ASV_1m6_gv5 ASV_1uo_lwx ... ASV_qbb_py4 ASV_qh9_8jg
+## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
+## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## reducedDimNames(0):
+## mainExpName: NULL
+## altExpNames(0):</code></pre>
+<pre class="r"><code>se[!is.na(rowData(se)$decontam_p_value) &amp; rowData(se)$decontam_p_value &lt; 0.5, ]</code></pre>
+<pre><code>## class: SingleCellExperiment 
+## dim: 16 26 
+## metadata(4): version taxonomy_ranks filtered_features clr_pseudocount
+## assays(3): counts relabundance clr
+## rownames(16): ASV_1rx_gqy ASV_2al_wxi ... ASV_s67_kdf ASV_snr_mtn
+## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
+## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
+## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## reducedDimNames(0):
+## mainExpName: NULL
+## altExpNames(0):</code></pre>
 </div>
 </div>
 <div id="further-reading" class="section level1">

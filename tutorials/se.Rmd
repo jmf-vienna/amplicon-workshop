@@ -254,6 +254,24 @@ colData(se) <- new_metadata
 ```
 
 
+# Subset
+
+## Subset samples
+
+```{r}
+se[, se$Soil_type %in% "forested"]
+```
+
+## Subset features
+
+```{r}
+se[rowData(se)$Family %in% "Nitrososphaeraceae", ]
+
+se[!is.na(rowData(se)$decontam_p_value) & rowData(se)$decontam_p_value < 0.5, ]
+```
+
+
+
 # Further reading:
 
 * https://microbiome.github.io/OMA/
