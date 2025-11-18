@@ -14,5 +14,5 @@ To verify all packages were successfully installed, run it one final time. The o
 ✔ All system requirements are already installed.
   
 ℹ No downloads are needed
-✔ 25 pkgs + 301 deps: kept 326 [4.2s]
+✔ 30 pkgs + 305 deps: kept 335 [4.2s]
 ```

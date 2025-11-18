@@ -22,6 +22,7 @@ pak::pkg_install(
     "targets",
     "config",
     "waldo",
+    "qs2",
     # Bioconductor:
     "BiocVersion",
     "BiocManager",
