@@ -23,6 +23,7 @@ library(tidyverse)
   * To hide the warnings we use `suppressPackageStartupMessages`.
   * To avoid unpredictable results, we use `conflicted::conflicts_prefer` to choose which functions we actually want.
   * All function with duplicated names that are not specified with `conflicts_prefer(...)` will result in an error.
+  * Read more at https://conflicted.r-lib.org/
 
 ```{r}
 suppressPackageStartupMessages(library(mia))
@@ -80,7 +81,7 @@ metadata(se)[["clr_pseudocount"]]
 Columns are always samples (biosamples, libraries, merged meta-samples, etc).
 
 ```{r}
-colData(se) |> head(c(5L, 3L))
+colData(se) |> head(c(Inf, 3L))
 
 # sample metadata variable names:
 se |>
@@ -112,7 +113,7 @@ taxonomyRanks(se)
 # JMF-style ranks
 metadata(se)[["taxonomy_ranks"]][["current"]]
 
-rowData(se) |> head(c(5L, 3L))
+rowData(se) |> head(c(Inf, 3L))
 
 # Bioconductor/tidyverse mixed usage:
 se |>
@@ -220,6 +221,8 @@ colData(se)$is_grassland_with_NAs <- colData(se)$Soil_type == "grassland soil" #
 
 ## Added new data from external tables
 
+* See also `read_csv`, `read_delim(..., delim = ";")`, and `readxl::read_excel` for alternative input formats.
+
 ```{r}
 extra_metadata <-
   fs::path("data", "soils.tsv") |>
@@ -228,7 +231,7 @@ extra_metadata <-
 ```
 
 * Use `left_join` to make sure no samples are missing after merging tables.
-* Specify `by` when merging tables to catch errors earlier.
+* Specify `by` when merging tables to catch errors earlier! It also makes the function quiet.
 
 ```{r}
 new_metadata <-
@@ -251,6 +254,11 @@ new_metadata |>
 waldo::compare(colData(se), new_metadata)
 
 colData(se) <- new_metadata
+```
+
+```{r}
+# check if it worked:
+colData(se)[, c("User_sample_ID", "Group", "Color")]
 ```
 
 

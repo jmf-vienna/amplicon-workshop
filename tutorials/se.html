@@ -406,6 +406,7 @@ library(tidyverse)</code></pre>
 actually want.</li>
 <li>All function with duplicated names that are not specified with
 <code>conflicts_prefer(...)</code> will result in an error.</li>
+<li>Read more at <a href="https://conflicted.r-lib.org/" class="uri">https://conflicted.r-lib.org/</a></li>
 </ul></li>
 </ul>
 <pre class="r"><code>suppressPackageStartupMessages(library(mia))
@@ -501,15 +502,21 @@ assay(se, &quot;clr&quot;) |&gt; head(c(5L, 3L))</code></pre>
 <h2>Samples: BioSample/Library metadata</h2>
 <p>Columns are always samples (biosamples, libraries, merged
 meta-samples, etc).</p>
-<pre class="r"><code>colData(se) |&gt; head(c(5L, 3L))</code></pre>
-<pre><code>## DataFrame with 5 rows and 3 columns
+<pre class="r"><code>colData(se) |&gt; head(c(Inf, 3L))</code></pre>
+<pre><code>## DataFrame with 26 rows and 3 columns
 ##                   JMF_sample_ID User_sample_ID BioSample_accession
 ##                     &lt;character&gt;    &lt;character&gt;         &lt;character&gt;
 ## JMF-1906-4-0001 JMF-1906-4-0001     A1 mulched                  NA
 ## JMF-1906-4-0002 JMF-1906-4-0002     A2 mulched                  NA
 ## JMF-1906-4-0003 JMF-1906-4-0003     A3 mulched                  NA
 ## JMF-1906-4-0004 JMF-1906-4-0004   A4 grassland                  NA
-## JMF-1906-4-0005 JMF-1906-4-0005   A5 grassland                  NA</code></pre>
+## JMF-1906-4-0005 JMF-1906-4-0005   A5 grassland                  NA
+## ...                         ...            ...                 ...
+## JMF-1906-4-0022 JMF-1906-4-0022   T4 grassland                  NA
+## JMF-1906-4-0023 JMF-1906-4-0023   T5 grassland                  NA
+## JMF-1906-4-0024 JMF-1906-4-0024   T6 grassland                  NA
+## JMF-1906-4-0025 JMF-1906-4-0025    T7 forested                  NA
+## JMF-1906-4-0027 JMF-1906-4-0027    T9 forested                  NA</code></pre>
 <pre class="r"><code># sample metadata variable names:
 se |&gt;
   colData() |&gt;
@@ -577,15 +584,21 @@ taxonomyRanks(se)</code></pre>
 <pre class="r"><code># JMF-style ranks
 metadata(se)[[&quot;taxonomy_ranks&quot;]][[&quot;current&quot;]]</code></pre>
 <pre><code>## [1] &quot;Domain&quot;  &quot;Phylum&quot;  &quot;Class&quot;   &quot;Order&quot;   &quot;Family&quot;  &quot;Genus&quot;   &quot;Species&quot; &quot;ASV_ID&quot;</code></pre>
-<pre class="r"><code>rowData(se) |&gt; head(c(5L, 3L))</code></pre>
-<pre><code>## DataFrame with 5 rows and 3 columns
-##                  Domain          Phylum               Class
-##             &lt;character&gt;     &lt;character&gt;         &lt;character&gt;
-## ASV_104_sx7    Bacteria  Actinomycetota     Thermoleophilia
-## ASV_10f_39x    Bacteria Planctomycetota      Planctomycetes
-## ASV_10z_d3k    Bacteria  Pseudomonadota Gammaproteobacteria
-## ASV_116_8mi    Bacteria  Pseudomonadota Alphaproteobacteria
-## ASV_11y_e80    Bacteria              NA                  NA</code></pre>
+<pre class="r"><code>rowData(se) |&gt; head(c(Inf, 3L))</code></pre>
+<pre><code>## DataFrame with 3464 rows and 3 columns
+##                  Domain            Phylum               Class
+##             &lt;character&gt;       &lt;character&gt;         &lt;character&gt;
+## ASV_104_sx7    Bacteria    Actinomycetota     Thermoleophilia
+## ASV_10f_39x    Bacteria   Planctomycetota      Planctomycetes
+## ASV_10z_d3k    Bacteria    Pseudomonadota Gammaproteobacteria
+## ASV_116_8mi    Bacteria    Pseudomonadota Alphaproteobacteria
+## ASV_11y_e80    Bacteria                NA                  NA
+## ...                 ...               ...                 ...
+## ASV_z8q_nee    Bacteria    Actinomycetota      Acidimicrobiia
+## ASV_zdi_osq    Bacteria Verrucomicrobiota    Verrucomicrobiia
+## ASV_zkw_u8e    Bacteria    Fibrobacterota       Fibrobacteria
+## ASV_zpu_k9u    Bacteria   Acidobacteriota    Vicinamibacteria
+## ASV_zzb_gea    Bacteria    Pseudomonadota Gammaproteobacteria</code></pre>
 <pre class="r"><code># Bioconductor/tidyverse mixed usage:
 se |&gt;
   rowData() |&gt;
@@ -736,6 +749,11 @@ colData(se)$is_grassland_with_NAs &lt;- colData(se)$Soil_type == &quot;grassland
 </div>
 <div id="added-new-data-from-external-tables" class="section level2">
 <h2>Added new data from external tables</h2>
+<ul>
+<li>See also <code>read_csv</code>,
+<code>read_delim(..., delim = &quot;;&quot;)</code>, and
+<code>readxl::read_excel</code> for alternative input formats.</li>
+</ul>
 <pre class="r"><code>extra_metadata &lt;-
   fs::path(&quot;data&quot;, &quot;soils.tsv&quot;) |&gt;
   read_tsv() |&gt;
@@ -749,8 +767,8 @@ colData(se)$is_grassland_with_NAs &lt;- colData(se)$Soil_type == &quot;grassland
 <ul>
 <li>Use <code>left_join</code> to make sure no samples are missing after
 merging tables.</li>
-<li>Specify <code>by</code> when merging tables to catch errors
-earlier.</li>
+<li>Specify <code>by</code> when merging tables to catch errors earlier!
+It also makes the function quiet.</li>
 </ul>
 <pre class="r"><code>new_metadata &lt;-
   se |&gt;
@@ -779,6 +797,22 @@ waldo::compare(colData(se), new_metadata)</code></pre>
 ## `old@listData$Color` is absent
 ## `new@listData$Color` is a character vector (&#39;brown&#39;, &#39;brown&#39;, &#39;brown&#39;, &#39;green&#39;, &#39;green&#39;, ...)</code></pre>
 <pre class="r"><code>colData(se) &lt;- new_metadata</code></pre>
+<pre class="r"><code># check if it worked:
+colData(se)[, c(&quot;User_sample_ID&quot;, &quot;Group&quot;, &quot;Color&quot;)]</code></pre>
+<pre><code>## DataFrame with 26 rows and 3 columns
+##                 User_sample_ID       Group       Color
+##                    &lt;character&gt;    &lt;factor&gt; &lt;character&gt;
+## JMF-1906-4-0001     A1 mulched mulched_A         brown
+## JMF-1906-4-0002     A2 mulched mulched_A         brown
+## JMF-1906-4-0003     A3 mulched mulched_A         brown
+## JMF-1906-4-0004   A4 grassland grassland_A       green
+## JMF-1906-4-0005   A5 grassland grassland_A       green
+## ...                        ...         ...         ...
+## JMF-1906-4-0022   T4 grassland grassland_T       green
+## JMF-1906-4-0023   T5 grassland grassland_T       green
+## JMF-1906-4-0024   T6 grassland grassland_T       green
+## JMF-1906-4-0025    T7 forested forested_T        brown
+## JMF-1906-4-0027    T9 forested forested_T        brown</code></pre>
 </div>
 </div>
 <div id="subsetting" class="section level1">

@@ -25,6 +25,7 @@ library(tidyverse)
   * To hide the warnings we use `suppressPackageStartupMessages`.
   * To avoid unpredictable results, we use `conflicted::conflicts_prefer` to choose which functions we actually want.
   * All function with duplicated names that are not specified with `conflicts_prefer(...)` will result in an error.
+  * Read more at https://conflicted.r-lib.org/
 
 
 ``` r
@@ -178,11 +179,11 @@ Columns are always samples (biosamples, libraries, merged meta-samples, etc).
 
 
 ``` r
-colData(se) |> head(c(5L, 3L))
+colData(se) |> head(c(Inf, 3L))
 ```
 
 ```
-## DataFrame with 5 rows and 3 columns
+## DataFrame with 26 rows and 3 columns
 ##                   JMF_sample_ID User_sample_ID BioSample_accession
 ##                     <character>    <character>         <character>
 ## JMF-1906-4-0001 JMF-1906-4-0001     A1 mulched                  NA
@@ -190,6 +191,12 @@ colData(se) |> head(c(5L, 3L))
 ## JMF-1906-4-0003 JMF-1906-4-0003     A3 mulched                  NA
 ## JMF-1906-4-0004 JMF-1906-4-0004   A4 grassland                  NA
 ## JMF-1906-4-0005 JMF-1906-4-0005   A5 grassland                  NA
+## ...                         ...            ...                 ...
+## JMF-1906-4-0022 JMF-1906-4-0022   T4 grassland                  NA
+## JMF-1906-4-0023 JMF-1906-4-0023   T5 grassland                  NA
+## JMF-1906-4-0024 JMF-1906-4-0024   T6 grassland                  NA
+## JMF-1906-4-0025 JMF-1906-4-0025    T7 forested                  NA
+## JMF-1906-4-0027 JMF-1906-4-0027    T9 forested                  NA
 ```
 
 ``` r
@@ -294,18 +301,24 @@ metadata(se)[["taxonomy_ranks"]][["current"]]
 ```
 
 ``` r
-rowData(se) |> head(c(5L, 3L))
+rowData(se) |> head(c(Inf, 3L))
 ```
 
 ```
-## DataFrame with 5 rows and 3 columns
-##                  Domain          Phylum               Class
-##             <character>     <character>         <character>
-## ASV_104_sx7    Bacteria  Actinomycetota     Thermoleophilia
-## ASV_10f_39x    Bacteria Planctomycetota      Planctomycetes
-## ASV_10z_d3k    Bacteria  Pseudomonadota Gammaproteobacteria
-## ASV_116_8mi    Bacteria  Pseudomonadota Alphaproteobacteria
-## ASV_11y_e80    Bacteria              NA                  NA
+## DataFrame with 3464 rows and 3 columns
+##                  Domain            Phylum               Class
+##             <character>       <character>         <character>
+## ASV_104_sx7    Bacteria    Actinomycetota     Thermoleophilia
+## ASV_10f_39x    Bacteria   Planctomycetota      Planctomycetes
+## ASV_10z_d3k    Bacteria    Pseudomonadota Gammaproteobacteria
+## ASV_116_8mi    Bacteria    Pseudomonadota Alphaproteobacteria
+## ASV_11y_e80    Bacteria                NA                  NA
+## ...                 ...               ...                 ...
+## ASV_z8q_nee    Bacteria    Actinomycetota      Acidimicrobiia
+## ASV_zdi_osq    Bacteria Verrucomicrobiota    Verrucomicrobiia
+## ASV_zkw_u8e    Bacteria    Fibrobacterota       Fibrobacteria
+## ASV_zpu_k9u    Bacteria   Acidobacteriota    Vicinamibacteria
+## ASV_zzb_gea    Bacteria    Pseudomonadota Gammaproteobacteria
 ```
 
 ``` r
@@ -554,6 +567,8 @@ colData(se)$is_grassland_with_NAs <- colData(se)$Soil_type == "grassland soil" #
 
 ## Added new data from external tables
 
+* See also `read_csv`, `read_delim(..., delim = ";")`, and `readxl::read_excel` for alternative input formats.
+
 
 ``` r
 extra_metadata <-
@@ -572,7 +587,7 @@ extra_metadata <-
 ```
 
 * Use `left_join` to make sure no samples are missing after merging tables.
-* Specify `by` when merging tables to catch errors earlier.
+* Specify `by` when merging tables to catch errors earlier! It also makes the function quiet.
 
 
 ``` r
@@ -609,6 +624,29 @@ waldo::compare(colData(se), new_metadata)
 
 ``` r
 colData(se) <- new_metadata
+```
+
+
+``` r
+# check if it worked:
+colData(se)[, c("User_sample_ID", "Group", "Color")]
+```
+
+```
+## DataFrame with 26 rows and 3 columns
+##                 User_sample_ID       Group       Color
+##                    <character>    <factor> <character>
+## JMF-1906-4-0001     A1 mulched mulched_A         brown
+## JMF-1906-4-0002     A2 mulched mulched_A         brown
+## JMF-1906-4-0003     A3 mulched mulched_A         brown
+## JMF-1906-4-0004   A4 grassland grassland_A       green
+## JMF-1906-4-0005   A5 grassland grassland_A       green
+## ...                        ...         ...         ...
+## JMF-1906-4-0022   T4 grassland grassland_T       green
+## JMF-1906-4-0023   T5 grassland grassland_T       green
+## JMF-1906-4-0024   T6 grassland grassland_T       green
+## JMF-1906-4-0025    T7 forested forested_T        brown
+## JMF-1906-4-0027    T9 forested forested_T        brown
 ```
 
 
