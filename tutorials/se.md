@@ -107,7 +107,7 @@ se
 ## rownames(3464): ASV_104_sx7 ASV_10f_39x ... ASV_zpu_k9u ASV_zzb_gea
 ## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
 ## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
-## colData names(41): JMF_sample_ID User_sample_ID ... .alpha_diversity_at_2173_chao1_se
+## colData names(42): JMF_sample_ID User_sample_ID ... .alpha_diversity_at_2173_chao1_se
 ##   .alpha_diversity_at_2173_shannon
 ## reducedDimNames(0):
 ## mainExpName: NULL
@@ -157,11 +157,11 @@ assay(se, "clr") |> head(c(5L, 3L))
 
 ```
 ##             JMF-1906-4-0001 JMF-1906-4-0002 JMF-1906-4-0003
-## ASV_104_sx7       0.6986293      -0.5936341       0.1118882
-## ASV_10f_39x      -0.9108086      -0.5936341      -0.9867241
-## ASV_10z_d3k      -0.9108086      -0.5936341       0.6227138
-## ASV_116_8mi      -0.9108086      -0.5936341      -0.9867241
-## ASV_11y_e80      -0.9108086      -0.5936341      -0.9867241
+## ASV_104_sx7       0.6975776      -0.5943196       0.1107488
+## ASV_10f_39x      -0.9118603      -0.5943196      -0.9878635
+## ASV_10z_d3k      -0.9118603      -0.5943196       0.6215744
+## ASV_116_8mi      -0.9118603      -0.5943196      -0.9878635
+## ASV_11y_e80      -0.9118603      -0.5943196      -0.9878635
 ```
 
 ``` r
@@ -243,6 +243,7 @@ se |>
 ## TDOC_per_TDN
 ## .Number_of_libraries
 ## .Libraries
+## .alpha_diversity_goods_coverage
 ## .alpha_diversity_chao1
 ## .alpha_diversity_chao1_se
 ## .alpha_diversity_shannon
@@ -384,7 +385,7 @@ dim(mse)
 ```
 
 ```
-## [1] 90064    55
+## [1] 90064    56
 ```
 
 
@@ -422,7 +423,7 @@ metadata(se) |> str()
 
 ```
 ## List of 4
-##  $ version          : int 1
+##  $ version          : int 2
 ##  $ taxonomy_ranks   :List of 2
 ##   ..$ initial: chr [1:8] "Domain" "Phylum" "Class" "Order" ...
 ##   ..$ current: chr [1:8] "Domain" "Phylum" "Class" "Order" ...
@@ -612,11 +613,11 @@ waldo::compare(colData(se), new_metadata)
 ```
 
 ```
-## `old@listData` is length 44
-## `new@listData` is length 45
+## `old@listData` is length 45
+## `new@listData` is length 46
 ## 
-## `names(old@listData)[42:44]`: "Replicate_number" "is_grassland" "is_grassland_with_NAs"        
-## `names(new@listData)[42:45]`: "Replicate_number" "is_grassland" "is_grassland_with_NAs" "Color"
+## `names(old@listData)[43:45]`: "Replicate_number" "is_grassland" "is_grassland_with_NAs"        
+## `names(new@listData)[43:46]`: "Replicate_number" "is_grassland" "is_grassland_with_NAs" "Color"
 ## 
 ## `old@listData$Color` is absent
 ## `new@listData$Color` is a character vector ('brown', 'brown', 'brown', 'green', 'green', ...)
@@ -667,7 +668,7 @@ se[, se$Soil_type %in% "forested"]
 ## rownames(3464): ASV_104_sx7 ASV_10f_39x ... ASV_zpu_k9u ASV_zzb_gea
 ## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
 ## colnames(7): JMF-1906-4-0007 JMF-1906-4-0008 ... JMF-1906-4-0025 JMF-1906-4-0027
-## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## colData names(46): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
 ## reducedDimNames(0):
 ## mainExpName: NULL
 ## altExpNames(0):
@@ -688,7 +689,7 @@ se[rowData(se)$Family %in% "Nitrososphaeraceae", ]
 ## rownames(19): ASV_1m6_gv5 ASV_1uo_lwx ... ASV_qbb_py4 ASV_qh9_8jg
 ## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
 ## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
-## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## colData names(46): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
 ## reducedDimNames(0):
 ## mainExpName: NULL
 ## altExpNames(0):
@@ -706,7 +707,7 @@ se[!is.na(rowData(se)$decontam_p_value) & rowData(se)$decontam_p_value < 0.5, ]
 ## rownames(16): ASV_1rx_gqy ASV_2al_wxi ... ASV_s67_kdf ASV_snr_mtn
 ## rowData names(11): Domain Phylum ... sequence_length decontam_p_value
 ## colnames(26): JMF-1906-4-0001 JMF-1906-4-0002 ... JMF-1906-4-0025 JMF-1906-4-0027
-## colData names(45): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
+## colData names(46): JMF_sample_ID User_sample_ID ... is_grassland_with_NAs Color
 ## reducedDimNames(0):
 ## mainExpName: NULL
 ## altExpNames(0):
@@ -739,13 +740,13 @@ my_analysis(se, "Group", "ASV_1uo_lwx")
 ## 	Pearson's product-moment correlation
 ## 
 ## data:  abundance and variable
-## t = -2.0982, df = 24, p-value = 0.04659
+## t = -2.098, df = 24, p-value = 0.04661
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
-##  -0.67770755 -0.00750048
+##  -0.677685056 -0.007458891
 ## sample estimates:
 ##        cor 
-## -0.3937086
+## -0.3936734
 ```
 
 
@@ -761,13 +762,13 @@ map(variables_of_interrest, \(x) my_analysis(se, x, "ASV_1uo_lwx"))
 ## 	Pearson's product-moment correlation
 ## 
 ## data:  abundance and variable
-## t = -2.0982, df = 24, p-value = 0.04659
+## t = -2.098, df = 24, p-value = 0.04661
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
-##  -0.67770755 -0.00750048
+##  -0.677685056 -0.007458891
 ## sample estimates:
 ##        cor 
-## -0.3937086 
+## -0.3936734 
 ## 
 ## 
 ## [[2]]
@@ -778,10 +779,10 @@ map(variables_of_interrest, \(x) my_analysis(se, x, "ASV_1uo_lwx"))
 ## t = -6.1324, df = 23, p-value = 2.957e-06
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
-##  -0.9020769 -0.5700036
+##  -0.9020766 -0.5700025
 ## sample estimates:
 ##        cor 
-## -0.7877196 
+## -0.7877189 
 ## 
 ## 
 ## [[3]]
@@ -789,13 +790,13 @@ map(variables_of_interrest, \(x) my_analysis(se, x, "ASV_1uo_lwx"))
 ## 	Pearson's product-moment correlation
 ## 
 ## data:  abundance and variable
-## t = 0.012293, df = 24, p-value = 0.9903
+## t = 0.012601, df = 24, p-value = 0.99
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
-##  -0.3852172  0.3894826
+##  -0.3851635  0.3895361
 ## sample estimates:
-##        cor 
-## 0.00250919
+##         cor 
+## 0.002572243
 ```
 
 
