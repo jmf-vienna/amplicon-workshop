@@ -42,7 +42,7 @@ packageVersion("mia")
 ```
 
 ```
-## [1] '1.18.0'
+## [1] '1.20.0'
 ```
 
 ``` r
@@ -52,8 +52,8 @@ citation("mia")
 ```
 ## To cite package 'mia' in publications use:
 ## 
-##   Borman T, Ernst F, Shetty S, Lahti L (2025). _mia: Microbiome analysis_. doi:10.18129/B9.bioc.mia
-##   <https://doi.org/10.18129/B9.bioc.mia>, R package version 1.18.0,
+##   Borman T, Ernst F, Shetty S, Lahti L (2026). _mia: Microbiome analysis_. doi:10.18129/B9.bioc.mia
+##   <https://doi.org/10.18129/B9.bioc.mia>. R package version 1.20.0,
 ##   <https://bioconductor.org/packages/mia>.
 ## 
 ## A BibTeX entry for LaTeX users is
@@ -61,8 +61,8 @@ citation("mia")
 ##   @Manual{,
 ##     title = {mia: Microbiome analysis},
 ##     author = {Tuomas Borman and Felix G.M. Ernst and Sudarshan A. Shetty and Leo Lahti},
-##     year = {2025},
-##     note = {R package version 1.18.0},
+##     year = {2026},
+##     note = {R package version 1.20.0},
 ##     url = {https://bioconductor.org/packages/mia},
 ##     doi = {10.18129/B9.bioc.mia},
 ##   }
