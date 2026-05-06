@@ -10,6 +10,15 @@ output:
 
 
 ``` r
+options(
+  warnPartialMatchArgs = TRUE,   # Warn when function arguments are partially matched.
+  warnPartialMatchDollar = TRUE, # Warn when $ operator partially matches names.
+  warnPartialMatchAttr = TRUE    # Warn when attributes are partially matched.
+)
+```
+
+
+``` r
 options(width = 120L)
 ```
 

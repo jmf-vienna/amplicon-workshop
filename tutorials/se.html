@@ -391,6 +391,11 @@ reading:</a></li>
 </ul>
 </div>
 
+<pre class="r"><code>options(
+  warnPartialMatchArgs = TRUE,   # Warn when function arguments are partially matched.
+  warnPartialMatchDollar = TRUE, # Warn when $ operator partially matches names.
+  warnPartialMatchAttr = TRUE    # Warn when attributes are partially matched.
+)</code></pre>
 <pre class="r"><code>options(width = 120L)</code></pre>
 <pre class="r"><code>library(conflicted)
 library(jmf)
