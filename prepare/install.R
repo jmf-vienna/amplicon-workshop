@@ -42,6 +42,6 @@ pak::pkg_install(
   upgrade = TRUE
 )
 
-if (packageVersion("BiocVersion") < "3.22") {
-  BiocManager::install(version = "3.22")
+if (packageVersion("BiocVersion") < "3.23") {
+  BiocManager::install(version = "3.23")
 }
